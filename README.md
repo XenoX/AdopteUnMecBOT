@@ -16,7 +16,7 @@ Script used to visit all the profiles resulting from a search.
 $ pip install -r requirements.txt
 ```
 - Download [ChromeDriver](https://chromedriver.chromium.org/downloads) in root project directory and unzip it (Take the version corresponding to your installed Chrome/Chromium)
-- Change `email`, `password` and `search` variable in main.py
+- Change `email`, `password` and `searchs` variable in main.py
 - Run the script !
 ```shell
 $ python3 main.py

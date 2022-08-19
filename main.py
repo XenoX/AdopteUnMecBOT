@@ -1,52 +1,83 @@
+#!/usr/bin/python3
+
 import time
 from parsel import Selector
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
-#######################################################
-##################### CHANGE THIS #####################
-#######################################################
-email = 'CHANGEME'
-password = 'CHANGEME'
-search = 'métalleuse de Paris de moins de 50ans'
-#######################################################
+class AdopteUnMec:
+    #######################################################
+    ##################### CHANGE THIS #####################
+    #######################################################
+    email = 'CHANGEME'
+    password = 'CHANGEME'
+    searchs = [
+        'métalleuse de Paris de moins de 50ans',
+        'jongleuse de Versailles de moins de 30ans',
+        'rentière de Neuilly de plus de 80ans',
+    ]
+    #######################################################
 
-s = Service('./chromedriver')
-driver = webdriver.Chrome(service=s)
+    def __init__(self):
+        self.email = AdopteUnMec.email
+        self.password = AdopteUnMec.password
+        self.searchs = AdopteUnMec.searchs
+        self.base_domain = "https://www.adopteunmec.com"
+        self.s = Service('./chromedriver')
+        self.driver = webdriver.Chrome(service = self.s)
+        self.profile_links = []
 
-base_domain = "https://www.adopteunmec.com"
+        self.run()
 
-# Connect and go to search page
-driver.get(base_domain)
+    def run(self):
+        self.login()
 
-driver.find_element(By.XPATH, '//*[@id="btn-display-login"]').click()
-driver.find_element(By.XPATH, '//*[@id="mail"]').send_keys(email)
-driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(password)
-driver.find_element(By.XPATH, '/html/body/div[4]/div[1]/section/form/div[2]/button').click()
+        for search in self.searchs:
+            self.goToPage("/gogole?q=" + search.replace(" ", "+"))
+            self.scrollDown(10)
+            self.getProfilesLinks()
+        
+        self.visitProfiles()
 
-driver.get(base_domain+"/gogole?q=" + search.replace(" ", "+"))
+        print(str(len(self.profile_links)) + " visited profiles")
 
-# Scroll down for discover all results
-for i in range(6):
-    driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
-    time.sleep(1)
+        self.close()
 
-# Get profiles links
-sel = Selector(text=driver.page_source)
-profile_links = []
-for item in sel.xpath('//*[@id="grid-container"]//a[contains(@href, "/profile/")]/@href').getall():
-    if not item.startswith(base_domain):
-        item = base_domain + item
-    profile_links.append(item)
+    def login(self):
+        self.driver.get(self.base_domain)
 
-# Visit all profiles
-profile_links = list(set(profile_links))
-for link in profile_links:
-    print("Visit : " + link)
-    driver.get(link)
-    time.sleep(0.5)
+        self.driver.find_element(By.XPATH, '//*[@id="btn-display-login"]').click()
+        self.driver.find_element(By.XPATH, '//*[@id="mail"]').send_keys(self.email)
+        self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(self.password)
+        self.driver.find_element(By.XPATH, '/html/body/div[3]/div[1]/section/form/div[2]/button').click()
 
-print(str(len(profile_links)) + " visited profiles")
+        print("Connected")
 
-driver.close()
+    def goToPage(self, uri):
+        print("Go to page " + self.base_domain + uri)
+        self.driver.get(self.base_domain + uri)
+
+    def scrollDown(self, quantity):
+        # Scroll down for discover all results
+        for i in range(quantity):
+            self.driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
+            time.sleep(1)
+
+    def getProfilesLinks(self):
+        selector = Selector(self.driver.page_source)
+        for item in selector.xpath('//*[@id="grid-container"]//a[contains(@href, "/profile/")]/@href').getall():
+            if not item.startswith(self.base_domain):
+                item = self.base_domain + item
+            self.profile_links.append(item)
+
+    def visitProfiles(self):
+        for link in list(set(self.profile_links)):
+            print("Visit : " + link)
+            self.driver.get(link)
+            time.sleep(0.5)
+
+    def close(self):
+        self.driver.close()
+
+AdopteUnMec()
