@@ -17,6 +17,7 @@ $ pip install -r requirements.txt
 ```
 - Download [ChromeDriver](https://chromedriver.chromium.org/downloads) in root project directory and unzip it (Take the version corresponding to your installed Chrome/Chromium)
 - Change `email`, `password` and `searchs` variable in main.py
+- You can add profile(s) link(s) in `exclude_profiles_links` if you don't want to let the script visit specific profiles
 - Run the script !
 ```shell
 $ python3 main.py

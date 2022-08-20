@@ -17,6 +17,8 @@ class AdopteUnMec:
         'jongleuse de Versailles de moins de 30ans',
         'rentière de Neuilly de plus de 80ans',
     ]
+    # List of profile(s) link(s) (eg:https://www.adopteunmec.com/profile/1234)
+    exclude_profiles_links = []
     #######################################################
 
     def __init__(self):
@@ -38,6 +40,7 @@ class AdopteUnMec:
             self.scrollDown(10)
             self.getProfilesLinks()
         
+        self.removeExcludeProfilesLinks()
         self.visitProfiles()
 
         print(str(len(self.profile_links)) + " visited profiles")
@@ -72,10 +75,13 @@ class AdopteUnMec:
             self.profile_links.append(item)
 
     def visitProfiles(self):
-        for link in list(set(self.profile_links)):
+        for link in self.profile_links:
             print("Visit : " + link)
             self.driver.get(link)
             time.sleep(0.5)
+    
+    def removeExcludeProfilesLinks(self):
+        self.profile_links = [link for link in list(set(self.profile_links)) if link not in list(set(self.exclude_profiles_links))]
 
     def close(self):
         self.driver.close()
