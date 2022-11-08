@@ -33,6 +33,9 @@ class AdopteUnMec:
         self.run()
 
     def run(self):
+        self.driver.get(self.base_domain)
+        time.sleep(5)
+
         self.login()
 
         for search in self.searchs:
@@ -48,8 +51,6 @@ class AdopteUnMec:
         self.close()
 
     def login(self):
-        self.driver.get(self.base_domain)
-
         self.driver.find_element(By.XPATH, '//*[@id="btn-display-login"]').click()
         self.driver.find_element(By.XPATH, '//*[@id="mail"]').send_keys(self.email)
         self.driver.find_element(By.XPATH, '//*[@id="password"]').send_keys(self.password)
@@ -69,9 +70,10 @@ class AdopteUnMec:
 
     def getProfilesLinks(self):
         selector = Selector(self.driver.page_source)
-        for item in selector.xpath('//*[@id="grid-container"]//a[contains(@href, "/profile/")]/@href').getall():
+        for item in selector.xpath('//*[@class="usergrid-list"]//a[contains(@href, "/profile/")]/@href').getall():
             if not item.startswith(self.base_domain):
                 item = self.base_domain + item
+            item = '?'.join(item.split('?')[:-1])
             self.profile_links.append(item)
 
     def visitProfiles(self):
